@@ -11,6 +11,8 @@ bot = commands.Bot(command_prefix="!", description="FFXIV-ZnBot")
 keyFile = open("./keys.json", "r")
 key = json.loads(keyFile.read())
 keyFile.close()
+classmap = {"0": "목수", "1": "대장장이", "2": "갑주제작사", "3": "보석공예가",
+          "4": "가죽공예가", "5": "재봉사", "6": "연금술사", "7": "요리사"}
 
 
 def botFormatter(strings, noLink=True):
@@ -100,8 +102,10 @@ async def item_sells(ctx, *args):
     try:
         r = requests.get(key["item_name_search_API"] + itemName)
         jsondict = json.loads(r.text)
-
         count = 0
+        if jsondict["item"]["name"] == "":
+            errcode = 1
+
         if jsondict["seller"]:
             for npc in jsondict["seller"].keys():
                 count += 1
@@ -114,16 +118,17 @@ async def item_sells(ctx, *args):
             if count > 5:
                 output = output + "...외 " + str(count - 5) + "명의 npc가 " + itemName + " 을(를) 판매하고 있습니다.\n"
         else:
-            output = output + itemName + " 을(를) 판매하는 npc가 없습니다.\n"
-        output = output + "자세한 정보 확인하기: " + " http://ff14.tar.to/item/view/?number=" + jsondict["item"]["id"]
+            if not errcode == 0:
+                output = "!판매정보 Error: 검색 결과가 없습니다."
+            else:
+                output = output + itemName + " 을(를) 판매하는 npc가 없습니다.\n"
+        if errcode == 0:
+            output = output + "자세한 정보 확인하기 " + " http://ff14.tar.to/item/view/?number=" + jsondict["item"]["id"]
     except:
         output = "!판매정보 Error: 검색 결과가 없습니다."
         errcode = 1
 
     await bot.send_message(ctx.message.channel, botFormatter(output, errcode))
-
-classmap = {"0": "목수", "1": "대장장이", "2": "갑주제작사", "3": "보석공예가",
-          "4": "가죽공예가", "5": "재봉사", "6": "연금술사", "7": "요리사"}
 
 
 @bot.command(name="제작정보", pass_context=True, help="!판매정보")
@@ -142,6 +147,9 @@ async def item_recipe(ctx, *args):
     try:
         r = requests.get(key["item_name_search_API"] + itemName)
         jsondict = json.loads(r.text)
+        if jsondict["item"]["name"] == "":
+            errcode = 1
+
         if jsondict["recipies"]:
             count = 0
             for recipe in jsondict["recipies"]:
@@ -155,24 +163,29 @@ async def item_recipe(ctx, *args):
                             break
                     except:
                         break
-                    output = output + jsondict["recipe_items"][recipe["material_target%s" % i]]["item"]\
+                    output = output + jsondict["recipe_items"][recipe["material_target%s" % i]]["name"]\
                                     + " " + recipe["material_amount%s" % i] + "개\n"
 
                 # for crystal, item number should be +2"d to get correct item info.
+                # https://ffxiv-data.dlunch.net/parsed/ex/kor_330/craftcrystaltype
                 for i in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
                     try:
-                        if recipe["crystal_slot%s_value" % i] == "0":
+                        if recipe["crystal_amount%s" % i] == "0":
                             break
                     except:
                         break
-                    ino = str(int(recipe["crystal_slot%s_kind" % i]) + 2)
-                    output = output + jsondict["recipe_items"][ino]["item"]\
-                                    + " " + recipe["crystal_slot%s_value" % i] + "개\n"
+                    ino = str(int(recipe["crystal_target%s" % i]) + 2)
+                    output = output + jsondict["recipe_items"][ino]["name"]\
+                                    + " " + recipe["crystal_amount%s" % i] + "개\n"
             if count > 1:
                 output = output + "\n...외 " + str(count - 1) + "개의 다른 직업으로도 제작할 수 있습니다.\n"
         else:
-            output = output + itemName + " 에 대한 제작 정보가 없습니다.\n"
-        output = output + "자세한 정보 확인하기: " + " http://ff14.tar.to/item/view/?number=" + jsondict["item"]["id"]
+            if not errcode == 0:
+                output = "!제작정보 Error: 검색 결과가 없습니다."
+            else:
+                output = output + itemName + " 에 대한 제작 정보가 없습니다.\n"
+        if errcode == 0:
+            output = output + "자세한 정보 확인하기 " + " http://ff14.tar.to/item/view/?number=" + jsondict["item"]["id"]
     except:
         output = "!제작정보 Error: 검색 결과가 없습니다."
         errcode = 1
