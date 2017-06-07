@@ -103,7 +103,10 @@ async def item_sells(ctx, *args):
         r = requests.get(key["item_name_search_API"] + itemName)
         jsondict = json.loads(r.text)
         count = 0
-        if jsondict["item"]["name"] == "":
+        try:
+            if jsondict["item"]["name"] == "":
+                errcode = 1
+        except:
             errcode = 1
 
         if jsondict["seller"]:
@@ -125,7 +128,7 @@ async def item_sells(ctx, *args):
         if errcode == 0:
             output = output + "자세한 정보 확인하기 " + " http://ff14.tar.to/item/view/?number=" + jsondict["item"]["id"]
     except:
-        output = "!판매정보 Error: 검색 결과가 없습니다."
+        output = "!판매정보 Error: 처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
         errcode = 1
 
     await bot.send_message(ctx.message.channel, botFormatter(output, errcode))
@@ -147,7 +150,10 @@ async def item_recipe(ctx, *args):
     try:
         r = requests.get(key["item_name_search_API"] + itemName)
         jsondict = json.loads(r.text)
-        if jsondict["item"]["name"] == "":
+        try:
+            if jsondict["item"]["name"] == "":
+                errcode = 1
+        except:
             errcode = 1
 
         if jsondict["recipies"]:
@@ -187,7 +193,7 @@ async def item_recipe(ctx, *args):
         if errcode == 0:
             output = output + "자세한 정보 확인하기 " + " http://ff14.tar.to/item/view/?number=" + jsondict["item"]["id"]
     except:
-        output = "!제작정보 Error: 검색 결과가 없습니다."
+        output = "!제작정보 Error: 처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
         errcode = 1
 
     await bot.send_message(ctx.message.channel, botFormatter(output, errcode))
