@@ -121,4 +121,10 @@ async def sendnotice(ctx, *args):
 if not os.path.exists("./bot log"):
     os.makedirs("./bot log")
 print("Starting FFXIV-ZnBot...")
-bot.run(key["bot_token"])
+while(1):
+    try:
+        bot.run(key["bot_token"])
+    except:
+        now = datetime.today()
+        print("Bot connection error at " + str(now) + ", Reconnecting in 10 seconds...")
+        time.sleep(10)
