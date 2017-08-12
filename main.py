@@ -7,6 +7,7 @@ import os
 import time
 from datetime import date
 from datetime import datetime
+import socket
 
 import discord
 
@@ -124,7 +125,10 @@ print("Starting FFXIV-ZnBot...")
 while(1):
     try:
         bot.run(key["bot_token"])
-    except:
+    except socket.error as e :
+        bot.close()
         now = datetime.today()
-        print("Bot connection error at " + str(now) + ", Reconnecting in 10 seconds...")
+        print("[" + str(now) + "]")
+        print(str(e))
+        print("Reconnecting in 10 seconds...")
         time.sleep(10)
