@@ -12,6 +12,7 @@ import socket
 import discord
 
 from commands import bot
+import twitter
 keyFile = open("./keys.json", "r")
 key = json.loads(keyFile.read())
 keyFile.close()
@@ -69,10 +70,13 @@ def isInList(ID):
 
 botCommands = ["!주사위", "!선택", "!도움말", "!제작정보", "!판매정보"]
 adminCommands = ["!공지전송"]
+global wasBotDown
+wasBotDown = False
 
 
 @bot.event
 async def on_ready():
+    wasBotDown = False
     await bot.change_presence(game=discord.Game(name='ff14.tar.to'))
     now = datetime.now()
     timestr = str(now)
@@ -125,9 +129,12 @@ print("Starting FFXIV-ZnBot...")
 while(1):
     try:
         bot.run(key["bot_token"])
-    except socket.error as e :
+    except Exception as e:
         bot.close()
         now = datetime.today()
+        if not wasBotDown:
+            twitter.tweet_now(now + "경 장애가 발생하여 봇이 잠시 중단되었습니다. 복구 중이오니 잠시 기다려 주십시오.")
+        wasBotDown = True
         print("[" + str(now) + "]")
         print(str(e))
         print("Reconnecting in 10 seconds...")
