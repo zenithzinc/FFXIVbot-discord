@@ -172,7 +172,6 @@ async def item_recipe(ctx, *args):
                     output = output + jsondict["recipe_items"][recipe["material_target%s" % i]]["name"]\
                                     + " " + recipe["material_amount%s" % i] + "개\n"
 
-                # for crystal, item number should be +2"d to get correct item info.
                 # https://ffxiv-data.dlunch.net/parsed/ex/kor_330/craftcrystaltype
                 for i in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
                     try:
@@ -180,7 +179,7 @@ async def item_recipe(ctx, *args):
                             break
                     except:
                         break
-                    ino = str(int(recipe["crystal_target%s" % i]) + 2)
+                    ino = recipe["crystal_target%s" % i]
                     output = output + jsondict["recipe_items"][ino]["name"]\
                                     + " " + recipe["crystal_amount%s" % i] + "개\n"
             if count > 1:
