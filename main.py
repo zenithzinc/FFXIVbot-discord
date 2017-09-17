@@ -128,12 +128,16 @@ if not os.path.exists("./bot log"):
 print("Starting FFXIV-ZnBot...")
 while(1):
     try:
+        wasBotDown = False
         bot.run(key["bot_token"])
     except Exception as e:
         bot.close()
         now = datetime.today()
         if not wasBotDown:
-            twitter.tweet_now(now + "경 장애가 발생하여 봇이 잠시 중단되었습니다. 복구 중이오니 잠시 기다려 주십시오.")
+            try:
+                twitter.tweet_now(str(now) + "경 장애가 발생하여 봇이 잠시 중단되었습니다. 복구 중이오니 잠시 기다려 주십시오.")
+            except:
+                pass
         wasBotDown = True
         print("[" + str(now) + "]")
         print(str(e))
