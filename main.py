@@ -128,7 +128,6 @@ if not os.path.exists("./bot log"):
 print("Starting FFXIV-ZnBot...")
 while(1):
     try:
-        wasBotDown = False
         bot.run(key["bot_token"])
     except Exception as e:
         bot.close()
