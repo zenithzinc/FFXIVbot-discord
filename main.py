@@ -126,19 +126,12 @@ async def sendnotice(ctx, *args):
 if not os.path.exists("./bot log"):
     os.makedirs("./bot log")
 print("Starting FFXIV-ZnBot...")
-while(1):
+try:
+    bot.run(key["bot_token"])
+except Exception as e:
+    now = datetime.today()
     try:
-        bot.run(key["bot_token"])
-    except Exception as e:
-        bot.close()
-        now = datetime.today()
-        if not wasBotDown:
-            try:
-                twitter.tweet_now(str(now) + "경 장애가 발생하여 봇이 잠시 중단되었습니다. 복구 중이오니 잠시 기다려 주십시오.")
-            except:
-                pass
-        wasBotDown = True
-        print("[" + str(now) + "]")
-        print(str(e))
-        print("Reconnecting in 10 seconds...")
-        time.sleep(10)
+        twitter.tweet_now(str(now) + "경 장애가 발생하여 봇이 잠시 중단되었습니다. 복구될때까지 잠시만 기다려 주십시오.")
+    except:
+        pass
+    print("Bot died at" + str(now) + "with error: " + str(e))
