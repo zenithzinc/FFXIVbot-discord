@@ -7,11 +7,12 @@ import os
 import time
 from datetime import date
 from datetime import datetime
-import socket
+import help
 
 import discord
+from discord.ext import commands as discord_commands
+import commands
 
-from commands import bot
 import twitter
 keyFile = open("./keys.json", "r")
 key = json.loads(keyFile.read())
@@ -21,6 +22,13 @@ file = open("./channels.txt", "r")
 tmp = file.readlines()
 channel_list = [x.strip() for x in tmp]
 file.close()
+
+bot = discord_commands.Bot(command_prefix="!", description="FFXIV-ZnBot")
+
+
+async def sendAsEmbed(channel, title, description, url="", message=""):
+    em = discord.Embed(title=title, description=description, url=url, colour=0x787978)
+    await bot.send_message(channel, message, embed=em)
 
 
 def inputLogger(message):
@@ -68,7 +76,7 @@ def isInList(ID):
         return False
 
 
-botCommands = ["!주사위", "!선택", "!도움말", "!제작정보", "!판매정보"]
+botCommands = ["!주사위", "!선택", "!도움말", "!제작정보", "!제작검색", "!제작", "!판매정보", "!판매검색", "!판매"]
 adminCommands = ["!공지전송"]
 global wasBotDown
 wasBotDown = False
@@ -107,6 +115,69 @@ async def on_message(message):
         logfile.close()
 
 
+@bot.command(name="주사위", pass_context=True, help="!주사위")
+async def bot_dice(ctx, *args):
+    returned = commands.dice(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1])
+
+
+@bot.command(name="선택", pass_context=True, help="!선택")
+async def bot_selector(ctx, *args):
+    returned = commands.selector(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1])
+
+
+@bot.command(name="부대버프", pass_context=True, help="!부대버프")
+async def bot_todaybuff(ctx, *args):
+    returned = commands.fc_todaybuff(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1])
+
+
+@bot.command(name="판매정보", pass_context=True, help="!판매정보")
+async def bot_item_sellers_1(ctx, *args):
+    returned = commands.item_sellers(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
+
+
+@bot.command(name="판매검색", pass_context=True, help="!판매정보")
+async def bot_item_sellers_2(ctx, *args):
+    returned = commands.item_sellers(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
+
+
+@bot.command(name="판매", pass_context=True, help="!판매정보")
+async def bot_item_sellers_3(ctx, *args):
+    returned = commands.item_sellers(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
+
+
+@bot.command(name="제작정보", pass_context=True, help="!판매정보")
+async def bot_item_recipe_1(ctx, *args):
+    returned = commands.item_recipe(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
+
+
+@bot.command(name="제작검색", pass_context=True, help="!판매정보")
+async def bot_item_recipe_2(ctx, *args):
+    returned = commands.item_recipe(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
+
+
+@bot.command(name="제작", pass_context=True, help="!판매정보")
+async def bot_item_recipe_3(ctx, *args):
+    returned = commands.item_recipe(args)
+    for resultset in returned:
+        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
+
+
 @bot.command(name="공지전송", pass_context=True)
 async def sendnotice(ctx, *args):
     global channel_list
@@ -121,6 +192,18 @@ async def sendnotice(ctx, *args):
         deleteFromList(del_list)
 
     noticeLogger(content)
+
+
+@bot.command(name="도움말", pass_context=True, help="!도움말")
+async def helpMessage(ctx, *args):
+    if len(args) == 0:
+        output = help.getHelpMessage("general")
+    elif len(args) == 1:
+        output = help.getHelpMessage(args[0])
+    else:
+        output = help.getHelpMessage("asdf")
+
+    await sendAsEmbed(ctx.message.channel, output[0], output[1])
 
 
 if not os.path.exists("./bot log"):
