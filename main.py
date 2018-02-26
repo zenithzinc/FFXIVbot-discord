@@ -26,12 +26,12 @@ file.close()
 bot = discord_commands.Bot(command_prefix="!", description="FFXIV-ZnBot")
 
 
-async def sendAsEmbed(channel, title, description, url="", message=""):
+async def send_as_embed(channel, title, description, url="", message=""):
     em = discord.Embed(title=title, description=description, url=url, colour=0x787978)
     await bot.send_message(channel, message, embed=em)
 
 
-def inputLogger(message):
+def input_logger(message):
     # input : class message of discord.py
     logfile = open(os.path.join("bot log", str(date.today()) + ".log"), mode="a", newline="\r\n")
     logfile.write("[" + str(time.strftime("%H:%M:%S")) + " " + message.server.name + "#"
@@ -39,7 +39,7 @@ def inputLogger(message):
     logfile.close()
 
 
-def noticeLogger(content):
+def notice_logger(content):
     # input : normal string
     logfile = open("./notice_log.log", mode="a", newline="\r\n")
     logfile.write("[" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ", sent to " + str(len(channel_list)) + " channels]"
@@ -47,7 +47,7 @@ def noticeLogger(content):
     logfile.close()
 
 
-def addToList(ID):
+def add_to_list(ID):
     global channel_list
 
     channel_list.append(ID)
@@ -55,7 +55,7 @@ def addToList(ID):
     listFile.write(ID + "\n")
 
 
-def deleteFromList(IDs):
+def delete_from_list(IDs):
     global channel_list
 
     for ID in IDs:
@@ -66,7 +66,7 @@ def deleteFromList(IDs):
     listFile.close()
 
 
-def isInList(ID):
+def is_in_list(ID):
     global channel_list
 
     try:
@@ -96,17 +96,17 @@ async def on_ready():
 async def on_message(message):
     try:
         if message.author == bot.user:
-            inputLogger(message)
+            input_logger(message)
             return
         cmd = message.content.split(" ")[0]
         if cmd in botCommands:
-            if not isInList(message.channel.id):
-                addToList(message.channel.id)
-            inputLogger(message)
+            if not is_in_list(message.channel.id):
+                add_to_list(message.channel.id)
+            input_logger(message)
             await bot.process_commands(message)
             return
         if cmd in adminCommands and message.author.id == key["admin"]:
-            inputLogger(message)
+            input_logger(message)
             await bot.process_commands(message)
 
     except:
@@ -118,29 +118,29 @@ async def on_message(message):
 @bot.command(name="주사위", pass_context=True, help="!주사위")
 async def bot_dice(ctx, *args):
     returned = commands.dice(args)
-    await sendAsEmbed(ctx.message.channel, returned[0], returned[1])
+    await send_as_embed(ctx.message.channel, returned[0], returned[1])
 
 
 @bot.command(name="선택", pass_context=True, help="!선택")
 async def bot_selector(ctx, *args):
     returned = commands.selector(args)
-    await sendAsEmbed(ctx.message.channel, returned[0], returned[1])
+    await send_as_embed(ctx.message.channel, returned[0], returned[1])
 
 
 @bot.command(name="판매정보", pass_context=True, help="!판매정보", aliases=["판매검색", "판매"])
 async def bot_item_sellers(ctx, *args):
     returned = commands.item_sellers(args)
-    await sendAsEmbed(ctx.message.channel, returned[0], returned[1], url=returned[2])
+    await send_as_embed(ctx.message.channel, returned[0], returned[1], url=returned[2])
 
 
 @bot.command(name="제작정보", pass_context=True, help="!제작정보", aliases=["제작검색", "제작"])
 async def bot_item_recipe(ctx, *args):
     returned = commands.item_recipe(args)
-    await sendAsEmbed(ctx.message.channel, returned[0], returned[1], url=returned[2])
+    await send_as_embed(ctx.message.channel, returned[0], returned[1], url=returned[2])
 
 
 @bot.command(name="공지전송", pass_context=True)
-async def sendnotice(ctx, *args):
+async def send_notice(ctx, *args):
     global channel_list
     del_list = []
     content = " ".join(args)
@@ -150,13 +150,13 @@ async def sendnotice(ctx, *args):
         except:
             del_list.append(channel)
     if not len(del_list) == 0:
-        deleteFromList(del_list)
+        delete_from_list(del_list)
 
-    noticeLogger(content)
+    notice_logger(content)
 
 
 @bot.command(name="도움말", pass_context=True, help="!도움말")
-async def helpMessage(ctx, *args):
+async def help_message(ctx, *args):
     if len(args) == 0:
         output = help.getHelpMessage("general")
     elif len(args) == 1:
@@ -164,7 +164,7 @@ async def helpMessage(ctx, *args):
     else:
         output = help.getHelpMessage("asdf")
 
-    await sendAsEmbed(ctx.message.channel, output[0], output[1])
+    await send_as_embed(ctx.message.channel, output[0], output[1])
 
 
 if not os.path.exists("./bot log"):
