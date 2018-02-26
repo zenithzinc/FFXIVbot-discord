@@ -13,14 +13,11 @@ from discord.ext import commands as discord_commands
 
 import commands
 import twitter
-keyFile = open("./keys.json", "r")
-key = json.loads(keyFile.read())
-keyFile.close()
+with open("./keys.json", "r") as keyFile, open("./channels.txt", "r") as channelFile:
+    key = json.loads(keyFile.read())
+    tmp = channelFile.readlines()
+    channel_list = [x.strip() for x in tmp]
 
-file = open("./channels.txt", "r")
-tmp = file.readlines()
-channel_list = [x.strip() for x in tmp]
-file.close()
 
 bot = discord_commands.Bot(command_prefix="!", description="FFXIV-ZnBot")
 
@@ -32,10 +29,9 @@ async def send_as_embed(channel, title, description, url="", message=""):
 
 def input_logger(message):
     # input : class message of discord.py
-    logfile = open(os.path.join("bot log", str(date.today()) + ".log"), mode="a", newline="\r\n")
-    logfile.write("[" + str(time.strftime("%H:%M:%S")) + " " + message.server.name + "#"
-                  + message.channel.name + " " + str(message.author) + "]" + message.content + "\n")
-    logfile.close()
+    with open(os.path.join("bot log", str(date.today()) + ".log"), mode="a", newline="\r\n") as logfile:
+        logfile.write("[" + str(time.strftime("%H:%M:%S")) + " " + message.server.name + "#"
+                      + message.channel.name + " " + str(message.author) + "]" + message.content + "\n")
 
 
 botCommands = ["!주사위", "!선택", "!도움말", "!제작정보", "!제작검색", "!제작", "!판매정보", "!판매검색", "!판매"]
@@ -69,9 +65,8 @@ async def on_message(message):
             await bot.process_commands(message)
 
     except:
-        logfile = open(os.path.join("bot log", str(date.today()) + ".log"), mode="a", newline="\r\n")
-        logfile.write("[" + str(time.strftime("%H:%M:%S")) + " ERROR OCCURED HANDLING UPPER MESSAGE.\n")
-        logfile.close()
+        with open(os.path.join("bot log", str(date.today()) + ".log"), mode="a", newline="\r\n") as logFile:
+            logFile.write("[" + str(time.strftime("%H:%M:%S")) + " ERROR OCCURED HANDLING UPPER MESSAGE.\n")
 
 
 @bot.command(name="주사위", pass_context=True, help="!주사위")
@@ -97,6 +92,7 @@ async def bot_item_recipe(ctx, *args):
     returned = commands.item_recipe(args)
     await send_as_embed(ctx.message.channel, returned[0], returned[1], url=returned[2])
 
+
 @bot.command(name="도움말", pass_context=True, help="!도움말")
 async def help_message(ctx, *args):
     if len(args) == 0:
@@ -114,27 +110,25 @@ async def help_message(ctx, *args):
 
 def notice_logger(content):
     # input : normal string
-    logfile = open("./notice_log.log", mode="a", newline="\r\n")
-    logfile.write("[" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ", sent to " + str(len(channel_list)) + " channels]"
-                  + content + "\n")
-    logfile.close()
+    with open("./notice_log.log", mode="a", newline="\r\n") as logfile:
+        logfile.write("[" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ", sent to "
+                      + str(len(channel_list)) + " channels]" + content + "\n")
 
 
 def add_to_list(ID):
     global channel_list
     channel_list.append(ID)
-    listFile = open("./channels.txt", "a")
-    listFile.write(ID + "\n")
+    with open("./channels.txt", "a") as listFile:
+        listFile.write(ID + "\n")
 
 
 def delete_from_list(IDs):
     global channel_list
     for ID in IDs:
         channel_list.remove(ID)
-    listFile = open("./channels.txt", "w")
-    for item in channel_list:
-        listFile.write("%s\n" % item)
-    listFile.close()
+    with open("./channels.txt","w") as listFile:
+        for item in channel_list:
+            listFile.write("%s\n" % item)
 
 
 def is_in_list(ID):
