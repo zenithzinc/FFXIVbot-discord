@@ -118,64 +118,25 @@ async def on_message(message):
 @bot.command(name="주사위", pass_context=True, help="!주사위")
 async def bot_dice(ctx, *args):
     returned = commands.dice(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1])
+    await sendAsEmbed(ctx.message.channel, returned[0], returned[1])
 
 
 @bot.command(name="선택", pass_context=True, help="!선택")
 async def bot_selector(ctx, *args):
     returned = commands.selector(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1])
+    await sendAsEmbed(ctx.message.channel, returned[0], returned[1])
 
 
-@bot.command(name="부대버프", pass_context=True, help="!부대버프")
-async def bot_todaybuff(ctx, *args):
-    returned = commands.fc_todaybuff(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1])
-
-
-@bot.command(name="판매정보", pass_context=True, help="!판매정보")
-async def bot_item_sellers_1(ctx, *args):
+@bot.command(name="판매정보", pass_context=True, help="!판매정보", aliases=["판매검색", "판매"])
+async def bot_item_sellers(ctx, *args):
     returned = commands.item_sellers(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
+    await sendAsEmbed(ctx.message.channel, returned[0], returned[1], url=returned[2])
 
 
-@bot.command(name="판매검색", pass_context=True, help="!판매정보")
-async def bot_item_sellers_2(ctx, *args):
-    returned = commands.item_sellers(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
-
-
-@bot.command(name="판매", pass_context=True, help="!판매정보")
-async def bot_item_sellers_3(ctx, *args):
-    returned = commands.item_sellers(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
-
-
-@bot.command(name="제작정보", pass_context=True, help="!판매정보")
-async def bot_item_recipe_1(ctx, *args):
+@bot.command(name="제작정보", pass_context=True, help="!제작정보", aliases=["제작검색", "제작"])
+async def bot_item_recipe(ctx, *args):
     returned = commands.item_recipe(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
-
-
-@bot.command(name="제작검색", pass_context=True, help="!판매정보")
-async def bot_item_recipe_2(ctx, *args):
-    returned = commands.item_recipe(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
-
-
-@bot.command(name="제작", pass_context=True, help="!판매정보")
-async def bot_item_recipe_3(ctx, *args):
-    returned = commands.item_recipe(args)
-    for resultset in returned:
-        await sendAsEmbed(ctx.message.channel, resultset[0], resultset[1], url=resultset[2])
+    await sendAsEmbed(ctx.message.channel, returned[0], returned[1], url=returned[2])
 
 
 @bot.command(name="공지전송", pass_context=True)

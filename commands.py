@@ -38,7 +38,7 @@ def dice(args):
     else:
         title, result = "주사위 Error", "잘못된 형식입니다."
 
-    return [[title, result]]
+    return [title, result]
 
 
 def selector(args):
@@ -56,7 +56,7 @@ def selector(args):
     except:
         output = "잘못된 형식입니다."
 
-    return [[title, result]]
+    return [title, result]
 
 
 def item_sellers(args):
@@ -91,7 +91,7 @@ def item_sellers(args):
     except Exception as e:
         print(e)
         title, output = "판매정보 Error", "처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
-    return [[title, output, url]]
+    return [title, output, url]
 
 
 def item_recipe(args):
@@ -143,5 +143,5 @@ def item_recipe(args):
         print(e)
         title, output = "제작정보 Error", "처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
 
-    return [[title, output, url]]
+    return [title, output, url]
 
