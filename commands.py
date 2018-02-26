@@ -2,9 +2,6 @@ import random
 import json
 
 import requests
-from discord.ext import commands
-import discord
-
 
 keyFile = open("./keys.json", "r")
 key = json.loads(keyFile.read())
@@ -53,13 +50,12 @@ def selector(args):
 def item_sellers(args):
     itemName = str(" ".join(args))
     body, url = "", ""
-    errcode = 0
     try:
         r = requests.post(key["API_item_name_to_id"], {"name": itemName})
-        itemlist = json.loads(r.text)
-        if not itemlist == []:
-            itemName = itemlist[0]["label"]
-            r = requests.post(key["API_item_detail"], {"id": itemlist[0]["id"]})
+        itemList = json.loads(r.text)
+        if not itemList == []:
+            itemName = itemList[0]["label"]
+            r = requests.post(key["API_item_detail"], {"id": itemList[0]["id"]})
             sellerList = json.loads(r.text)["enpc"]
             title = "[" + itemName + "] 판매 정보"
             no_of_sellers = len(sellerList)
@@ -67,7 +63,7 @@ def item_sellers(args):
                 body = itemName + " 을(를) 판매하는 npc가 없습니다."
             else:
                 count = 0
-                url = " http://ff14.tar.to/item/view/" + str(itemlist[0]["id"])
+                url = " http://ff14.tar.to/item/view/" + str(itemList[0]["id"])
                 for npc in sellerList:
                     count += 1
                     if count <= 5:
@@ -89,10 +85,10 @@ def item_recipe(args):
     body, url = "", ""
     try:
         r = requests.post(key["API_item_name_to_id"], {"name": itemName})
-        itemlist = json.loads(r.text)
-        if not itemlist == []:
-            itemName = itemlist[0]["label"]
-            r = requests.post(key["API_item_detail"], {"id": itemlist[0]["id"]})
+        itemList = json.loads(r.text)
+        if not itemList == []:
+            itemName = itemList[0]["label"]
+            r = requests.post(key["API_item_detail"], {"id": itemList[0]["id"]})
             details = json.loads(r.text)
             recipes = details["recipes"]
             items = details["items"]
@@ -119,7 +115,7 @@ def item_recipe(args):
             elif len(recipes) == 0:
                 title, body = "[" + itemName + "] 제작정보", itemName + " 에 대한 제작 정보가 없습니다."
             if len(recipes) != 0:
-                url = "http://ff14.tar.to/item/view/" + str(itemlist[0]["id"])
+                url = "http://ff14.tar.to/item/view/" + str(itemList[0]["id"])
         else:
             title, body = "제작정보 Error", itemName + " 의 검색 결과가 없습니다."
     except Exception as e:
@@ -127,4 +123,3 @@ def item_recipe(args):
         title, body = "제작정보 Error", "처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
 
     return [title, body, url]
-
