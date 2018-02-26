@@ -1,6 +1,5 @@
 # This bot uses python 3.6
-
-# Ver 1.0.0
+# Encoding: UTF-8
 
 import json
 import os
@@ -11,8 +10,8 @@ import help
 
 import discord
 from discord.ext import commands as discord_commands
-import commands
 
+import commands
 import twitter
 keyFile = open("./keys.json", "r")
 key = json.loads(keyFile.read())
@@ -39,52 +38,12 @@ def input_logger(message):
     logfile.close()
 
 
-def notice_logger(content):
-    # input : normal string
-    logfile = open("./notice_log.log", mode="a", newline="\r\n")
-    logfile.write("[" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ", sent to " + str(len(channel_list)) + " channels]"
-                  + content + "\n")
-    logfile.close()
-
-
-def add_to_list(ID):
-    global channel_list
-
-    channel_list.append(ID)
-    listFile = open("./channels.txt", "a")
-    listFile.write(ID + "\n")
-
-
-def delete_from_list(IDs):
-    global channel_list
-
-    for ID in IDs:
-        channel_list.remove(ID)
-    listFile = open("./channels.txt", "w")
-    for item in channel_list:
-        listFile.write("%s\n" % item)
-    listFile.close()
-
-
-def is_in_list(ID):
-    global channel_list
-
-    try:
-        channel_list.index(ID)
-        return True
-    except:
-        return False
-
-
 botCommands = ["!주사위", "!선택", "!도움말", "!제작정보", "!제작검색", "!제작", "!판매정보", "!판매검색", "!판매"]
 adminCommands = ["!공지전송"]
-global wasBotDown
-wasBotDown = False
 
 
 @bot.event
 async def on_ready():
-    wasBotDown = False
     await bot.change_presence(game=discord.Game(name='ff14.tar.to'))
     now = datetime.now()
     timestr = str(now)
@@ -138,6 +97,54 @@ async def bot_item_recipe(ctx, *args):
     returned = commands.item_recipe(args)
     await send_as_embed(ctx.message.channel, returned[0], returned[1], url=returned[2])
 
+@bot.command(name="도움말", pass_context=True, help="!도움말")
+async def help_message(ctx, *args):
+    if len(args) == 0:
+        output = help.getHelpMessage("general")
+    elif len(args) == 1:
+        output = help.getHelpMessage(args[0])
+    else:
+        output = help.getHelpMessage("asdf")
+
+    await send_as_embed(ctx.message.channel, output[0], output[1])
+
+
+# Admin commands
+
+
+def notice_logger(content):
+    # input : normal string
+    logfile = open("./notice_log.log", mode="a", newline="\r\n")
+    logfile.write("[" + str(time.strftime("%Y-%m-%d %H:%M:%S")) + ", sent to " + str(len(channel_list)) + " channels]"
+                  + content + "\n")
+    logfile.close()
+
+
+def add_to_list(ID):
+    global channel_list
+    channel_list.append(ID)
+    listFile = open("./channels.txt", "a")
+    listFile.write(ID + "\n")
+
+
+def delete_from_list(IDs):
+    global channel_list
+    for ID in IDs:
+        channel_list.remove(ID)
+    listFile = open("./channels.txt", "w")
+    for item in channel_list:
+        listFile.write("%s\n" % item)
+    listFile.close()
+
+
+def is_in_list(ID):
+    global channel_list
+    try:
+        channel_list.index(ID)
+        return True
+    except:
+        return False
+
 
 @bot.command(name="공지전송", pass_context=True)
 async def send_notice(ctx, *args):
@@ -155,16 +162,7 @@ async def send_notice(ctx, *args):
     notice_logger(content)
 
 
-@bot.command(name="도움말", pass_context=True, help="!도움말")
-async def help_message(ctx, *args):
-    if len(args) == 0:
-        output = help.getHelpMessage("general")
-    elif len(args) == 1:
-        output = help.getHelpMessage(args[0])
-    else:
-        output = help.getHelpMessage("asdf")
-
-    await send_as_embed(ctx.message.channel, output[0], output[1])
+# Bot running part
 
 
 if not os.path.exists("./bot log"):
