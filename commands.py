@@ -63,15 +63,22 @@ def item_sellers(args):
                 body = itemName + " 을(를) 판매하는 npc가 없습니다."
             else:
                 count = 0
-                url = " http://ff14.tar.to/item/view/" + str(itemList[0]["id"])
+                housing_sellers = 0
+                url = " https://ff14.tar.to/item/view/" + str(itemList[0]["id"])
                 for npc in sellerList:
-                    count += 1
                     if count <= 5:
-                        body = body + npc["name"] + " (" + npc["placename"] + " " \
-                               + str(round(npc["x"], 1)) + ", " + str(round(npc["y"], 1)) + ")\n"
+                        if round(npc["x"]) == round(npc["y"]) == 0:
+                            housing_sellers += 1
+                        else:
+                            count += 1
+                            body = body + npc["name"] + " (" + npc["placename"] + " " \
+                                   + str(round(npc["x"], 1)) + ", " + str(round(npc["y"], 1)) + ")\n"
                     else:
-                        body = body + "...외 " + str(no_of_sellers - 5) + "명의 npc가 " + itemName + " 을(를) 판매하고 있습니다."
+                        body = body + "...외 " + str(no_of_sellers - housing_sellers - 5) + "명의 npc가 "\
+                               + itemName + " 을(를) 판매하고 있습니다.\n"
                         break
+                if housing_sellers:
+                    body = body + "하우징의 고용 상인도 " + itemName + "를 판매하고 있습니다."
         else:
             title, body = "판매정보 Error", itemName + " 의 검색 결과가 없습니다."
     except Exception as e:
