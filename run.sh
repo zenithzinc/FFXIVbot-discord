@@ -1,4 +1,4 @@
 while true
-	do python3.6 test.py
+	do python3.6 main.py
 	sleep 5
 done
