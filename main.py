@@ -105,11 +105,11 @@ async def bot_item_recipe(ctx, *args):
 @bot.command(name="도움말", pass_context=True, help="!도움말")
 async def help_message(ctx, *args):
     if len(args) == 0:
-        output = help.getHelpMessage("general")
+        output = help.getHelpMessage()
     elif len(args) == 1:
         output = help.getHelpMessage(args[0])
     else:
-        output = help.getHelpMessage("asdf")
+        output = help.getHelpMessage()
 
     await send_as_embed(ctx.message.channel, output[0], output[1])
 
