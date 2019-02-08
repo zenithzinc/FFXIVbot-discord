@@ -23,8 +23,10 @@ bot = discord_commands.Bot(command_prefix="!", description="FFXIV-ZnBot")
 testMode = True
 
 
-async def send_as_embed(channel, title, description, url="", message=""):
+async def send_as_embed(channel, title, description, url="", message="", image=""):
     em = discord.Embed(title=title, description=description, url=url, colour=0x787978)
+    em.set_thumbnail(url=image)
+    em.set_footer(text="Powered by ff14.tar.to")
     await bot.send_message(channel, message, embed=em)
 
 
@@ -91,7 +93,7 @@ async def bot_selector(ctx, *args):
 @bot.command(name="판매정보", pass_context=True, help="!판매정보", aliases=["판매검색", "판매"])
 async def bot_item_sellers(ctx, *args):
     returned = commands.item_sellers(args)
-    await send_as_embed(ctx.message.channel, returned[0], returned[1], url=returned[2])
+    await send_as_embed(ctx.message.channel, returned[0], returned[1], url=returned[2], image=returned[3])
 
 
 @bot.command(name="제작정보", pass_context=True, help="!제작정보", aliases=["제작검색", "제작"])

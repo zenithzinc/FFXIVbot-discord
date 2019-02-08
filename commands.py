@@ -49,7 +49,7 @@ def selector(args):
 
 def item_sellers(args):
     itemName = str(" ".join(args))
-    body, url = "", ""
+    body, url, imageurl = "", "", ""
     try:
         r = requests.post(key["API_item_name_to_id"], {"name": itemName})
         itemList = json.loads(r.text)
@@ -57,14 +57,19 @@ def item_sellers(args):
             itemName = itemList[0]["label"]
             r = requests.post(key["API_item_detail"], {"id": itemList[0]["id"]})
             sellerList = json.loads(r.text)["enpc"]
+            imageid = int(json.loads(r.text)["item"]["icon"])
+            imageurl = "https://ff14.tar.to/assets/img/icon/{:06d}/{:06d}.tex.png".format(int(imageid/1000)*1000,
+                                                                                          imageid)
+            print(imageurl)
             title = "[" + itemName + "] 판매 정보"
             no_of_sellers = len(sellerList)
             if no_of_sellers == 0:
                 body = itemName + " 을(를) 판매하는 npc가 없습니다."
+                url = "https://ff14.tar.to/item/view/" + str(itemList[0]["id"])
             else:
                 count = 0
                 housing_sellers = 0
-                url = " https://ff14.tar.to/item/view/" + str(itemList[0]["id"])
+                url = "https://ff14.tar.to/item/view/" + str(itemList[0]["id"])
                 for npc in sellerList:
                     if count <= 5:
                         if round(npc["x"]) == round(npc["y"]) == 0:
@@ -84,7 +89,7 @@ def item_sellers(args):
     except Exception as e:
         print(e)
         title, body = "판매정보 Error", "처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
-    return [title, body, url]
+    return [title, body, url, imageurl]
 
 
 def item_recipe(args):
