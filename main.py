@@ -6,11 +6,12 @@ import os
 import time
 from datetime import date
 from datetime import datetime
-import help
+import traceback
 
 import discord
 from discord.ext import commands as discord_commands
 
+import help
 import commands
 import twitter
 with open("./keys.json", "r") as keyFile, open("./channels.txt", "r") as channelFile:
@@ -20,7 +21,7 @@ with open("./keys.json", "r") as keyFile, open("./channels.txt", "r") as channel
 
 
 bot = discord_commands.Bot(command_prefix="!", description="FFXIV-ZnBot")
-testMode = True
+testMode = False
 
 
 async def send_as_embed(channel, title, description, url="", message="", image=""):
@@ -45,9 +46,7 @@ adminCommands = ["!공지전송"]
 @bot.event
 async def on_ready():
     await bot.change_presence(game=discord.Game(name='ff14.tar.to'))
-    now = datetime.now()
-    timestr = str(now)
-    print("Discord bot logged in as " + bot.user.name + "(" + bot.user.id + ") at " + timestr)
+    print("Discord bot logged in as " + bot.user.name + " at " + str(datetime.now()))
     print("------------")
 
 
@@ -177,9 +176,9 @@ if testMode:
 try:
     bot.run(key["bot_token"])
 except Exception as e:
-    now = datetime.today()
+    print(datetime.now())
+    traceback.print_exc()
     try:
         twitter.tweet_now(str(now) + "경 장애가 발생하여 봇이 잠시 중단되었습니다. 복구될때까지 잠시만 기다려 주십시오.")
     except:
-        pass
-    print("Bot died at" + str(now) + "with error: " + str(e))
+        traceback.print_exc()
