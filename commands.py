@@ -1,5 +1,6 @@
 import random
 import json
+import traceback
 
 import requests
 
@@ -20,9 +21,12 @@ def dice(args):
             raise ValueError
     except ValueError:
         title, result = "주사위 Error", "잘못된 형식입니다.(지원 범위 : 0<크기<=10000, 0<개수<=100)"
-        return [[title, result]]
+        return [title, result]
     except IndexError:
         pass
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
     title = "최대값 %d의 주사위 %d회 결과" % (limit, rolls)
     result = ", ".join(str(random.randint(1, limit)) for r in range(rolls))
 
@@ -41,7 +45,9 @@ def selector(args):
         else:
             title = "선택 결과"
             result = args[random.randint(0, len(args) - 1)]
-    except:
+    except Exception as e:
+        print(e)
+        traceback.print_exc()
         result = "잘못된 형식입니다."
 
     return [title, result]
@@ -88,6 +94,7 @@ def item_sellers(args):
             title, body = "판매정보 Error", itemName + " 의 검색 결과가 없습니다."
     except Exception as e:
         print(e)
+        traceback.print_exc()
         title, body = "판매정보 Error", "처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
     return [title, body, url, imageurl]
 
@@ -132,6 +139,7 @@ def item_recipe(args):
             title, body = "제작정보 Error", itemName + " 의 검색 결과가 없습니다."
     except Exception as e:
         print(e)
+        traceback.print_exc()
         title, body = "제작정보 Error", "처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
 
     return [title, body, url]
