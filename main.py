@@ -26,7 +26,8 @@ testMode = True
 async def send_as_embed(channel, title, description, url="", message="", image=""):
     em = discord.Embed(title=title, description=description, url=url, colour=0x787978)
     em.set_thumbnail(url=image)
-    em.set_footer(text="Powered by ff14.tar.to")
+    if url:
+        em.set_footer(text="Powered by ff14.tar.to")
     await bot.send_message(channel, message, embed=em)
 
 
