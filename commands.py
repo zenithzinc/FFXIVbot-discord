@@ -20,13 +20,16 @@ def dice(args):
         if not 1 <= rolls <= 100:
             raise ValueError
     except ValueError:
-        title, result = "주사위 Error", "잘못된 형식입니다.(지원 범위 : 0<크기<=10000, 0<개수<=100)"
+        title, result = "지원 범위를 벗어난 숫자입니다.", "크기는 10000 미만, 개수는 100 미만의 자연수로 입력해 주세요."
         return [title, result]
     except IndexError:
         pass
     except Exception as e:
         print(e)
         traceback.print_exc()
+        title = "내부 오류가 발생했습니다."
+        result = "불편을 드려 죄송합니다."
+        return [title, result]
     title = "최대값 %d의 주사위 %d회 결과" % (limit, rolls)
     result = ", ".join(str(random.randint(1, limit)) for r in range(rolls))
 
@@ -34,21 +37,22 @@ def dice(args):
 
 
 def selector(args):
-    title = "선택 Error"
     try:
+        result = "항목은 2개 이상, 20개 이하로 입력해 주세요."
         if len(args) == 0:  # no element
-            result = "입력된 요소가 없습니다."
+            title = "입력된 항목이 없습니다."
         elif len(args) == 1:  # 1 element
-            result = "입력된 요소가 1개 뿐입니다."
+            title = "입력된 항목이 하나 뿐입니다."
         elif len(args) > 20:  # over 20 element
-            result = "입력된 요소가 20개를 초과하여 처리할 수 없습니다."
+            title = "입력된 항목이 너무 많습니다."
         else:
             title = "선택 결과"
             result = args[random.randint(0, len(args) - 1)]
     except Exception as e:
         print(e)
         traceback.print_exc()
-        result = "잘못된 형식입니다."
+        title = "내부 오류가 발생했습니다."
+        result = "불편을 드려 죄송합니다."
 
     return [title, result]
 
@@ -66,11 +70,10 @@ def item_sellers(args):
             imageid = int(json.loads(r.text)["item"]["icon"])
             imageurl = "https://ff14.tar.to/assets/img/icon/{:06d}/{:06d}.tex.png".format(int(imageid/1000)*1000,
                                                                                           imageid)
-            print(imageurl)
-            title = "[" + itemName + "] 판매 정보"
+            title = "{} 을(를) 판매하는 NPC가 없습니다.".format(itemName)
             no_of_sellers = len(sellerList)
             if no_of_sellers == 0:
-                body = itemName + " 을(를) 판매하는 npc가 없습니다."
+                body = "제작할 수 있는 아이템이라면 !제작 명령어로 검색해보세요."
                 url = "https://ff14.tar.to/item/view/" + str(itemList[0]["id"])
             else:
                 count = 0
@@ -91,11 +94,11 @@ def item_sellers(args):
                 if housing_sellers:
                     body = body + "하우징의 고용 상인도 " + itemName + "를 판매하고 있습니다."
         else:
-            title, body = "판매정보 Error", itemName + " 의 검색 결과가 없습니다."
+            title, body = itemName + " 의 검색 결과가 없습니다.", "아이템 이름을 잘못 입력하신 건 아닌지 확인해주세요."
     except Exception as e:
         print(e)
         traceback.print_exc()
-        title, body = "판매정보 Error", "처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
+        title, body = "내부 오류가 발생했습니다.", "불편을 드려 죄송합니다."
     return [title, body, url, imageurl]
 
 
@@ -132,14 +135,15 @@ def item_recipe(args):
             if len(recipes) > 1:
                 body = body + "(총 " + str(len(recipes)) + "개의 직업으로 제작 가능)"
             elif len(recipes) == 0:
-                title, body = "[" + itemName + "] 제작정보", itemName + " 에 대한 제작 정보가 없습니다."
+                title = itemName + " 에 대한 제작 정보가 없습니다."
+                body = "판매 혹은 교환으로 입수할 수 있는 아이템이라면 !판매 명령어로 검색해보세요."
             if len(recipes) != 0:
                 url = "http://ff14.tar.to/item/view/" + str(itemList[0]["id"])
         else:
-            title, body = "제작정보 Error", itemName + " 의 검색 결과가 없습니다."
+            title, body = itemName + " 의 검색 결과가 없습니다.", "아이템 이름을 잘못 입력하신건 아닌지 확인해주세요."
     except Exception as e:
         print(e)
         traceback.print_exc()
-        title, body = "제작정보 Error", "처리 중 에러가 발생했습니다. 같은 에러가 반복되는 경우 제보해주세요."
+        title, body = "내부 오류가 발생했습니다.", "불편을 드려 죄송합니다."
 
     return [title, body, url]
