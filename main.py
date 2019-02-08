@@ -20,6 +20,7 @@ with open("./keys.json", "r") as keyFile, open("./channels.txt", "r") as channel
 
 
 bot = discord_commands.Bot(command_prefix="!", description="FFXIV-ZnBot")
+testMode = True
 
 
 async def send_as_embed(channel, title, description, url="", message=""):
@@ -50,6 +51,12 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     try:
+        if testMode:
+            if message.server.id == key["test_server_ID"]:
+                bot.process_commands(message)
+            else:
+                return
+
         if message.author == bot.user:
             input_logger(message)
             return
@@ -162,6 +169,8 @@ async def send_notice(ctx, *args):
 if not os.path.exists("./bot log"):
     os.makedirs("./bot log")
 print("Starting FFXIV-ZnBot...")
+if testMode:
+    print("**Test Mode**")
 try:
     bot.run(key["bot_token"])
 except Exception as e:
