@@ -39,7 +39,8 @@ def input_logger(message):
                       + message.channel.name + " " + str(message.author) + "]" + message.content + "\n")
 
 
-botCommands = ["!주사위", "!선택", "!도움말", "!제작정보", "!제작검색", "!제작", "!판매정보", "!판매검색", "!판매"]
+botCommands = ["!주사위", "!선택", "!도움말", "!제작정보", "!제작검색", "!제작", "!판매정보", "!판매검색", "!판매",
+               "!교환정보", "!교환검색", "!교환"]
 adminCommands = ["!공지전송"]
 
 
@@ -90,7 +91,7 @@ async def bot_selector(ctx, *args):
     await send_as_embed(ctx.message.channel, returned[0], returned[1])
 
 
-@bot.command(name="판매정보", pass_context=True, help="!판매정보", aliases=["판매검색", "판매"])
+@bot.command(name="판매정보", pass_context=True, help="!판매정보", aliases=["판매검색", "판매", "교환정보", "교환검색", "교환"])
 async def bot_item_sellers(ctx, *args):
     returned = commands.item_sellers(args)
     await send_as_embed(ctx.message.channel, returned[0], returned[1], url=returned[2], image=returned[3])

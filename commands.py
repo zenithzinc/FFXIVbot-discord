@@ -58,47 +58,98 @@ def selector(args):
 
 
 def item_sellers(args):
-    itemName = str(" ".join(args))
+    item_name = str(" ".join(args))
     body, url, imageurl = "", "", ""
     try:
-        r = requests.post(key["API_item_name_to_id"], {"name": itemName})
-        itemList = json.loads(r.text)
-        if not itemList == []:
-            itemName = itemList[0]["label"]
-            r = requests.post(key["API_item_detail"], {"id": itemList[0]["id"]})
-            sellerList = json.loads(r.text)["enpc"]
-            imageid = int(json.loads(r.text)["item"]["icon"])
-            imageurl = "https://ff14.tar.to/assets/img/icon/{:06d}/{:06d}.tex.png".format(int(imageid/1000)*1000,
-                                                                                          imageid)
-            title = "{} 을(를) 판매하는 NPC가 없습니다.".format(itemName)
-            no_of_sellers = len(sellerList)
-            if no_of_sellers == 0:
-                body = "제작할 수 있는 아이템이라면 !제작 명령어로 검색해보세요."
-                url = "https://ff14.tar.to/item/view/" + str(itemList[0]["id"])
-            else:
-                count = 0
-                housing_sellers = 0
-                url = "https://ff14.tar.to/item/view/" + str(itemList[0]["id"])
-                for npc in sellerList:
-                    if count <= 5:
-                        if round(npc["x"]) == round(npc["y"]) == 0:
-                            housing_sellers += 1
-                        else:
-                            count += 1
-                            body = body + npc["name"] + " (" + npc["placename"] + " " \
-                                   + str(round(npc["x"], 1)) + ", " + str(round(npc["y"], 1)) + ")\n"
-                    else:
-                        body = body + "...외 " + str(no_of_sellers - housing_sellers - 5) + "명의 npc가 "\
-                               + itemName + " 을(를) 판매하고 있습니다.\n"
-                        break
-                if housing_sellers:
-                    body = body + "하우징의 고용 상인도 " + itemName + "를 판매하고 있습니다."
-        else:
-            title, body = itemName + " 의 검색 결과가 없습니다.", "아이템 이름을 잘못 입력하신 건 아닌지 확인해주세요."
+        r = requests.post(key["API_item_name_to_id"], {"name": item_name})
+        item_list = json.loads(r.text)
+        if not item_list:
+            title, body = "{} 의 검색 결과가 없습니다.".format(item_name), "아이템 이름을 잘못 입력하신 건 아닌지 확인해주세요."
+            return [title, body, url, imageurl]
+
+        item_name = item_list[0]["label"]
+        r = requests.post(key["API_item_detail"], {"id": item_list[0]["id"]})
+        item_detail = json.loads(r.text)
+        url = "https://ff14.tar.to/item/view/{}".format(item_detail["item"]["id"])
+        iconid = int(item_detail["item"]["icon"])
+        imageurl = "https://ff14.tar.to/assets/img/icon/{:06d}/{:06d}.tex.png".format(int(iconid / 1000) * 1000, iconid)
+
+        enpc_list = item_detail["enpc"]
+        senpc_list = item_detail["senpc"]
+        if not enpc_list and not senpc_list:
+            title = "{} 을(를) 판매하는 NPC가 없습니다.".format(item_name)
+            body = "제작할 수 있는 아이템이라면 !제작 명령어로 검색해보세요."
+            return [title, body, url, imageurl]
+
+        enpc_infos = []
+        enpc_count = 0
+        senpc_infos = []
+        senpc_count = 0
+        senpc_sliced = False
+        enpc_sliced = False
+
+        items = item_detail["items"]
+
+        for senpc in senpc_list:
+            if senpc["x"] is None:
+                continue
+            senpc_count += 1
+            if senpc_sliced:
+                continue
+            if senpc_count > 10:
+                senpc_sliced = True
+                continue
+
+            location = "하우징 혹은 특수필드" if senpc["x"] == -1 else "{} {}, {}".format(senpc["name"],
+                                                                             round(senpc["x"], 1), round(senpc["y"], 1))
+            senpc_info = "{}({}/".format(senpc["enpc_name"], location)
+            for i in range(1, 4):
+                if senpc["target_id{}".format(i)] == 0 or senpc["target_id{}".format(i)] is None:
+                    break
+                if i != 1:
+                    senpc_info += ', '
+                senpc_info += items[str(senpc["target_id{}".format(i)])]
+                if senpc["target_hq{}".format(i)]:
+                    senpc_info += ' HQ'
+                if senpc["target_collectivity{}".format(i)] is None:
+                    senpc["target_collectivity{}".format(i)] = 0
+                if senpc["target_collectivity{}".format(i)] > 0:
+                    senpc_info += " 소장 가치 {} 이상".format(senpc["target_collectivity{}".format(i)])
+                senpc_info += " {}개".format(senpc["target_quantity{}".format(i)])
+            senpc_info += ")"
+            senpc_infos.append(senpc_info)
+
+        for enpc in enpc_list:
+            if enpc["x"] is None:
+                continue
+            enpc_count += 1
+            if enpc_sliced:
+                continue
+            if enpc_count + senpc_count > 10 and enpc_count > 5:
+                enpc_sliced = True
+                continue
+
+            location = "하우징 혹은 특수필드" if enpc["x"] == -1 else "{} {}, {}".format(enpc["placename"],
+                                                                               round(enpc["x"], 1), round(enpc["y"], 1))
+            enpc_info = "{}({}/{}길".format(enpc["name"], location, item_detail["item"]["price_a"])
+            enpc_infos.append(enpc_info)
+
+        total_list = enpc_infos + senpc_infos
+        if len(total_list) > 10:
+            total_list = total_list[0:10]
+            senpc_sliced = True
+        body = "\n".join(total_list)
+        if enpc_sliced or senpc_sliced:
+            body += " 등"
+
+        title_part = "판매 및 교환" if senpc_count > 0 and enpc_count > 0 else "판매" if senpc_count == 0 else "교환"
+        title = "[{}] {} 정보".format(item_name, title_part)
+
     except Exception as e:
         print(e)
         traceback.print_exc()
         title, body = "내부 오류가 발생했습니다.", "불편을 드려 죄송합니다."
+        imageurl = ""
     return [title, body, url, imageurl]
 
 
