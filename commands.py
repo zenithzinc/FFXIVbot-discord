@@ -131,7 +131,7 @@ def item_sellers(args):
 
             location = "하우징 혹은 특수필드" if enpc["x"] == -1 else "{} {}, {}".format(enpc["placename"],
                                                                                round(enpc["x"], 1), round(enpc["y"], 1))
-            enpc_info = "{}({}/{}길".format(enpc["name"], location, item_detail["item"]["price_a"])
+            enpc_info = "{}({}/{}길)".format(enpc["name"], location, item_detail["item"]["price_a"])
             enpc_infos.append(enpc_info)
 
         total_list = enpc_infos + senpc_infos
