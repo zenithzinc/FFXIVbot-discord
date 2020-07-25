@@ -2,5 +2,6 @@
 *.txt
 *.log
 .idea
+.python-version
 __pycache__
 bot log/
